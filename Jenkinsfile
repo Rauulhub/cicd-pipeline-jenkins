@@ -9,6 +9,7 @@ pipeline {
         IMAGE_MAIN = "nodemain:v1.0"
         IMAGE_DEV  = "nodedev:v1.0"
         DOCKER_CREDENTIALS = 'dockerhub_credential'
+        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     }
 
     stages {
@@ -17,7 +18,13 @@ pipeline {
                 git branch: "${env.BRANCH_NAME}", credentialsId: 'github-https-creds', url: 'https://github.com/Rauulhub/cicd-pipeline-jenkins.git'
             }
         }
-
+    stages {
+        stage('Check Docker') {
+            steps {
+                sh 'which docker'
+                sh 'docker --version'
+            }
+        }
         stage('Install') {
             steps {
                 sh 'npm install'
