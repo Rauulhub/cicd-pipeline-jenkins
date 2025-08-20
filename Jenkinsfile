@@ -10,8 +10,6 @@ pipeline {
         IMAGE_DEV  = "nodedev:v1.0"
         DOCKER_CREDENTIALS = 'dockerhub_credential'
         PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-        DOCKER_USER = credentials('docker-user')
-        DOCKER_PASSWORD = credentials('docker-password')
     }
 
 
@@ -50,6 +48,29 @@ pipeline {
                 }
             }
         }
+        stage('Stop old containers') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == "main") {
+                        sh "docker ps -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker stop"
+                    } else if (env.BRANCH_NAME == "dev") {
+                        sh "docker ps -q --filter ancestor=${IMAGE_DEV} | xargs -r docker stop"
+                    }
+                }
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == "main") {
+                        sh "docker run -d --expose 3000 -p 3000:3000 ${IMAGE_MAIN}"
+                    } else if (env.BRANCH_NAME == "dev") {
+                        sh "docker run -d --expose 3001 -p 3001:3000 ${IMAGE_DEV}"
+                    }
+                }
+            }
+        }
         stage('Push to DockerHub') {
             steps {
                 script {
@@ -61,7 +82,8 @@ pipeline {
                         }
                     }
                 }
-        }
-        }
+            }
+            }
+        
     }
 }
