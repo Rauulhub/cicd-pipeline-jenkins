@@ -51,11 +51,14 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub_credential') {
-                    def app = docker.image("rauulhub/nodemain:v1.0")
-                    app.push()
-            }
-            }
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        if (env.BRANCH_NAME == "main") {
+                            docker.image("${IMAGE_MAIN}").push()
+                        } else if (env.BRANCH_NAME == "dev") {
+                            docker.image("${IMAGE_DEV}").push()
+                        }
+                    }
+                }
         }
         }
     }
