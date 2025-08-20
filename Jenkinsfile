@@ -75,7 +75,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        echo $DOCKER_CREDENTIALS_PSW | /usr/local/bin/docker login -u $DOCKER_CREDENTIALS_USR --password-stdin
+                        echo $env.DOCKER_PASSWORD | /usr/local/bin/docker login -u $env.DOCKER_USERNAME --password-stdin
                     """
                     if (env.BRANCH_NAME == "main") {
                         sh """
@@ -90,7 +90,7 @@ pipeline {
                     }
                 }
             }
-            }
+        }
         
     }
 }
