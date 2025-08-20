@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: "${env.BRANCH_NAME}", credentialsId: 'github_ssh', url: 'git@github.com:Rauulhub/cicd-pipeline-jenkins.git'
+                git branch: "${env.BRANCH_NAME}", credentialsId: 'github-https-creds', url: 'https://github.com/Rauulhub/cicd-pipeline-jenkins.git'
             }
         }
 
