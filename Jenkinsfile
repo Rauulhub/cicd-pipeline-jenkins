@@ -64,22 +64,24 @@ pipeline {
             steps {
                 script {
                     if (env.BRANCH_NAME == "main") {
-                        sh "docker run -d --expose 3000 -p 3000:3000 ${IMAGE_MAIN}"
+                        sh "/usr/local/bin/docker run -d --expose 3000 -p 3000:3000 ${IMAGE_MAIN}"
                     } else if (env.BRANCH_NAME == "dev") {
-                        sh "docker run -d --expose 3001 -p 3001:3000 ${IMAGE_DEV}"
+                        sh "/usr/local/bin/docker run -d --expose 3001 -p 3001:3000 ${IMAGE_DEV}"
                     }
                 }
             }
         }
         stage('Push to DockerHub') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                        if (env.BRANCH_NAME == "main") {
-                            docker.image("${IMAGE_MAIN}").push()
+                script { 
+                    docker.withRegistry('', DOCKER_CREDENTIALS) { 
+                        if (env.BRANCH_NAME == "main") 
+                        { sh "/usr/local/bin/docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}" 
+                          sh "/usr/local/bin/docker push rauulhub/${IMAGE_MAIN}" 
                         } else if (env.BRANCH_NAME == "dev") {
-                            docker.image("${IMAGE_DEV}").push()
-                        }
+                             sh "/usr/local/bin/docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}" 
+                             sh "/usr/local/bin/docker push rauulhub/${IMAGE_DEV}" 
+                        } 
                     }
                 }
             }
