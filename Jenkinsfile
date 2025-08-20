@@ -73,15 +73,20 @@ pipeline {
         }
         stage('Push to DockerHub') {
             steps {
-                script { 
-                    docker.withRegistry('', DOCKER_CREDENTIALS) { 
-                        if (env.BRANCH_NAME == "main") 
-                        { sh "/usr/local/bin/docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}" 
-                          sh "/usr/local/bin/docker push rauulhub/${IMAGE_MAIN}" 
-                        } else if (env.BRANCH_NAME == "dev") {
-                             sh "/usr/local/bin/docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}" 
-                             sh "/usr/local/bin/docker push rauulhub/${IMAGE_DEV}" 
-                        } 
+                script {
+                    sh """
+                        echo $DOCKER_CREDENTIALS_PSW | /usr/local/bin/docker login -u $DOCKER_CREDENTIALS_USR --password-stdin
+                    """
+                    if (env.BRANCH_NAME == "main") {
+                        sh """
+                            /usr/local/bin/docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}
+                            /usr/local/bin/docker push rauulhub/${IMAGE_MAIN}
+                        """
+                    } else if (env.BRANCH_NAME == "dev") {
+                        sh """
+                            /usr/local/bin/docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}
+                            /usr/local/bin/docker push rauulhub/${IMAGE_DEV}
+                        """
                     }
                 }
             }
