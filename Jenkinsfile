@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "Node 18
+        nodejs "Node 18"
     }
 
     environment {
@@ -12,20 +12,19 @@ pipeline {
         PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     }
 
+
     stages {
         stage('Checkout') {
             steps {
                 git branch: "${env.BRANCH_NAME}", credentialsId: 'github-https-creds', url: 'https://github.com/Rauulhub/cicd-pipeline-jenkins.git'
             }
         }
-    stages {
         stage('Check Docker') {
             steps {
                 sh 'which docker'
                 sh 'docker --version'
             }
         }
-
         stage('Install') {
             steps {
                 sh 'npm install'
