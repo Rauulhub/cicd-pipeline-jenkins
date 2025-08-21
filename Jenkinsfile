@@ -21,8 +21,8 @@ pipeline {
         }
         stage('Check Docker') {
             steps {
-                sh 'which docker'
-                sh 'docker --version'
+                sh "which docker"
+                sh "docker --version"
             }
         }
         stage('Install') {
