@@ -9,7 +9,7 @@ pipeline {
         IMAGE_MAIN = "nodemain:v1.0"
         IMAGE_DEV  = "nodedev:v1.0"
         DOCKER_CREDENTIALS = 'dockerhub_credential'
-        PATH = "/usr/local/bin/"
+        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     }
 
 
