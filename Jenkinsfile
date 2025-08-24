@@ -55,8 +55,14 @@ pipeline {
                         sh "docker ps -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker stop"
                         sh "docker ps -a -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker rm"
                     } else if (env.BRANCH_NAME == "dev") {
-                        sh "docker ps -q --filter ancestor=${IMAGE_DEV} | xargs -r docker stop"
-                        sh "docker ps -a -q --filter ancestor=${IMAGE_DEV} | xargs -r docker rm"
+                        // Mata cualquier contenedor usando el puerto 3001
+                        sh """
+                        CONTAINER_ID=\$(docker ps -q --filter "publish=3001")
+                        if [ ! -z "\$CONTAINER_ID" ]; then
+                          docker stop \$CONTAINER_ID
+                          docker rm -f \$CONTAINER_ID
+                        fi
+                        """
                     }
                 }
             }
