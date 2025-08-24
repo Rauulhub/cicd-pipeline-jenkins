@@ -74,11 +74,12 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_CREDENTIALS) {
+                       // docker.withRegistry('', DOCKER_CREDENTIALS) {
                        //if (env.BRANCH_NAME == "main") {
                        //    sh "docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}"
                        //     sh "docker push rauulhub/${IMAGE_MAIN}"
                        // } else if (env.BRANCH_NAME == "dev") {
+                            sh "/usr/local/bin/docker login -u ${env.DOCKER_USER} -p ${env.DOCKER_PASS}"
                             sh "docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
                             sh "docker push rauulhub/${IMAGE_DEV}"
                         }
