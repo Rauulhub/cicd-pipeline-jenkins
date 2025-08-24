@@ -83,9 +83,9 @@ pipeline {
                             sh "docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
                             sh "docker push rauulhub/${IMAGE_DEV}"
                         }
-                    }
-                }
+            }
         }
+        
     }
 }
       
