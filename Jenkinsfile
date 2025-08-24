@@ -52,8 +52,14 @@ pipeline {
             steps {
                 script {
                     if (env.BRANCH_NAME == "main") {
-                        sh "docker ps -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker stop"
-                        sh "docker ps -a -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker rm"
+                        // Mata cualquier contenedor usando el puerto 3000
+                        sh """
+                        CONTAINER_ID=\$(docker ps -q --filter "publish=3000")
+                        if [ ! -z "\$CONTAINER_ID" ]; then
+                          docker stop \$CONTAINER_ID
+                          docker rm -f \$CONTAINER_ID
+                        fi
+                        """
                     } else if (env.BRANCH_NAME == "dev") {
                         // Mata cualquier contenedor usando el puerto 3001
                         sh """
@@ -109,6 +115,17 @@ pipeline {
         
         }
     }
+    post {
+    success {
+        script {
+            if (env.BRANCH_NAME == "main") {
+                build job: 'Deploy_to_main'
+            } else if (env.BRANCH_NAME == "dev") {
+                build job: 'Deploy_to_dev'
+            }
+        }
+    }
+}
 }
       
 
