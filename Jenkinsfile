@@ -53,8 +53,10 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == "main") {
                         sh "docker ps -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker stop"
+                        sh "docker ps -a -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker rm"
                     } else if (env.BRANCH_NAME == "dev") {
                         sh "docker ps -q --filter ancestor=${IMAGE_DEV} | xargs -r docker stop"
+                        sh "docker ps -a -q --filter ancestor=${IMAGE_DEV} | xargs -r docker rm"
                     }
                 }
             }
