@@ -87,13 +87,27 @@ pipeline {
                        //    sh "docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}"
                        //     sh "docker push rauulhub/${IMAGE_MAIN}"
                        // } else if (env.BRANCH_NAME == "dev") {
-                            sh "/usr/local/bin/docker login -u ${env.DOCKER_USER} -p ${env.DOCKER_PASS}"
-                            sh "docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
-                            sh "docker push rauulhub/${IMAGE_DEV}"
-                        }
-            }
-        }
+                       //     sh "/usr/local/bin/docker login -u ${env.DOCKER_USER} -p ${env.DOCKER_PASS}"
+                       //     sh "docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
+                       //     sh "docker push rauulhub/${IMAGE_DEV}"
+                    withCredentials([
+                    string(credentialsId: 'dockerhub-username', variable: 'DOCKER_USER'),
+                    string(credentialsId: 'dockerhub-password', variable: 'DOCKER_PASS')
+                     ]) {
+                        sh "/usr/local/bin/docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                
+                        if (env.BRANCH_NAME == "main") {
+                         sh "/usr/local/bin/docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}"
+                         sh "/usr/local/bin/docker push rauulhub/${IMAGE_MAIN}"
+                        } else if (env.BRANCH_NAME == "dev") {
+                         sh "/usr/local/bin/docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
+                         sh "/usr/local/bin/docker push rauulhub/${IMAGE_DEV}"
+                         }
+                      }
+                    }
+                }
         
+        }
     }
 }
       
