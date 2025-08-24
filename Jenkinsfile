@@ -53,8 +53,16 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == "main") {
                         sh "docker ps -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker stop"
+                        sh "docker ps -a -q --filter ancestor=${IMAGE_MAIN} | xargs -r docker rm"
                     } else if (env.BRANCH_NAME == "dev") {
-                        sh "docker ps -q --filter ancestor=${IMAGE_DEV} | xargs -r docker stop"
+                        // Mata cualquier contenedor usando el puerto 3001
+                        sh """
+                        CONTAINER_ID=\$(docker ps -q --filter "publish=3001")
+                        if [ ! -z "\$CONTAINER_ID" ]; then
+                          docker stop \$CONTAINER_ID
+                          docker rm -f \$CONTAINER_ID
+                        fi
+                        """
                     }
                 }
             }
@@ -74,19 +82,33 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_CREDENTIALS) {
+                       // docker.withRegistry('', DOCKER_CREDENTIALS) {
+                       //if (env.BRANCH_NAME == "main") {
+                       //    sh "docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}"
+                       //     sh "docker push rauulhub/${IMAGE_MAIN}"
+                       // } else if (env.BRANCH_NAME == "dev") {
+                       //     sh "/usr/local/bin/docker login -u ${env.DOCKER_USER} -p ${env.DOCKER_PASS}"
+                       //     sh "docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
+                       //     sh "docker push rauulhub/${IMAGE_DEV}"
+                    withCredentials([
+                        string(credentialsId: 'DOCKER_USER', variable: 'DOCKER_USER'),
+                        string(credentialsId: 'DOCKER_PASS', variable: 'DOCKER_PASS')
+                         ]) {
+                            sh "/usr/local/bin/docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                
                         if (env.BRANCH_NAME == "main") {
-                            sh "docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}"
-                            sh "docker push rauulhub/${IMAGE_MAIN}"
+                         sh "/usr/local/bin/docker tag ${IMAGE_MAIN} rauulhub/${IMAGE_MAIN}"
+                         sh "/usr/local/bin/docker push rauulhub/${IMAGE_MAIN}"
                         } else if (env.BRANCH_NAME == "dev") {
-                            sh "docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
-                            sh "docker push rauulhub/${IMAGE_DEV}"
-                        }
+                         sh "/usr/local/bin/docker tag ${IMAGE_DEV} rauulhub/${IMAGE_DEV}"
+                         sh "/usr/local/bin/docker push rauulhub/${IMAGE_DEV}"
+                         }
+                      }
                     }
                 }
-            }
+        
         }
     }
-        
 }
+      
 
